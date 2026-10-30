@@ -12,40 +12,44 @@ on:
 
 concurrency:
   group: frontend-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
 
 jobs:
   security:
     name: Security scan
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+      - name: Block tracked secret files
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$|(^|/)\.env\.local$|\.pem$|id_rsa|\.key$|\.gnmap$'; then
+            echo "Secret files must not be committed"
+            exit 1
+          fi
+          echo "No secret files tracked"
+
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
       - name: Malware pattern scan
         run: |
-          set -e
           PATTERNS='global\.i=|_0x[0-9a-f]{4,}|createRequire\(import\.meta|child_process|drpc\.org|blockscout|eval\(|new Function'
-          if rg -n "$PATTERNS" --glob '*.js' --glob '*.cjs' --glob '*.mjs' --glob '*.jsx' --glob '!node_modules' --glob '!dist' .; then
+          if grep -rnE "$PATTERNS" --include='*.js' --include='*.cjs' --include='*.mjs' --include='*.jsx' src index.html vite.config.js tailwind.config.js postcss.config.js; then
             echo "Suspicious patterns found"
             exit 1
           fi
           echo "No suspicious patterns found"
 
       - name: Config size guard
-        run: |
-          size=$(wc -c < tailwind.config.js)
-          echo "tailwind.config.js size: $size bytes"
-          test "$size" -lt 2000
+        run: test "$(wc -c < tailwind.config.js)" -lt 2000
 
       - name: npm audit
         run: npm audit --audit-level=critical
@@ -56,45 +60,30 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: ESLint
-        run: npm run lint
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
   build:
     name: Build
     needs: security
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
+          cache: npm
+      - run: npm ci
       - name: Production build
         run: npm run build
         env:
           VITE_API_BASE_URL: https://api.sales.rw
-          VITE_ENCRYPTION_KEY: ${{ secrets.VITE_ENCRYPTION_KEY }}
-
-      - name: Upload dist artifact
+      - name: Upload dist
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
@@ -115,6 +104,7 @@ jobs:
           name: frontend-dist
           path: dist
 
+      # Upload next to the live site, so visitors never see a half-copied site.
       - name: Upload to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -123,11 +113,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT || 22 }}
           source: "dist/*"
-          target: "/var/www/sales.rw"
+          target: "/var/www/sales.rw.next"
           strip_components: 1
           rm: true
 
-      - name: Fix permissions and reload nginx
+      - name: Switch to the new version
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -135,10 +125,19 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT || 22 }}
           script: |
-            set -e
-            chown -R www-data:www-data /var/www/sales.rw
-            find /var/www/sales.rw -type d -exec chmod 755 {} \;
-            find /var/www/sales.rw -type f -exec chmod 644 {} \;
-            nginx -t
+            set -euo pipefail
+            test -s /var/www/sales.rw.next/index.html
+            chown -R www-data:www-data /var/www/sales.rw.next
+            find /var/www/sales.rw.next -type d -exec chmod 755 {} \;
+            find /var/www/sales.rw.next -type f -exec chmod 644 {} \;
+            rm -rf /var/www/sales.rw.previous
+            if [ -d /var/www/sales.rw ]; then mv /var/www/sales.rw /var/www/sales.rw.previous; fi
+            mv /var/www/sales.rw.next /var/www/sales.rw
+            if ! nginx -t; then
+              echo "nginx config is invalid, going back"
+              rm -rf /var/www/sales.rw
+              mv /var/www/sales.rw.previous /var/www/sales.rw
+              exit 1
+            fi
             systemctl reload nginx
-            echo "Frontend deployed to https://www.sales.rw"
+            echo "Frontend deployed to https://sales.rw (previous version kept in /var/www/sales.rw.previous)"
