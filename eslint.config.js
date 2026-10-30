@@ -23,7 +23,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
+      // Unused arguments and caught errors are normal; unused variables still warn.
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]', args: 'none', caughtErrors: 'none' }],
+      // Contexts and small helpers live next to their components on purpose.
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])
