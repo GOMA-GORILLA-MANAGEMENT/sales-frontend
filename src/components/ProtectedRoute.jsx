@@ -12,7 +12,7 @@ const Spinner = () => (
  * Signed-in people only. Pass `permission` to also require a permission, or `platform` for the
  * super admin console. Anyone else is sent to the page that suits their role.
  */
-const ProtectedRoute = ({ children, permission, platform, any }) => {
+const ProtectedRoute = ({ children, permission, platform, any, anyone }) => {
   const { isAuthenticated, loading, user, can } = useAuth();
   const location = useLocation();
 
@@ -20,6 +20,7 @@ const ProtectedRoute = ({ children, permission, platform, any }) => {
   if (!isAuthenticated()) return <Navigate to="/auth/login" state={{ from: location }} replace />;
 
   const isPlatform = user.role === "SUPER_ADMIN";
+  if (anyone) return children;
   if (platform && !isPlatform) return <Navigate to="/app" replace />;
   if (!platform && isPlatform) return <Navigate to="/platform" replace />;
   if (permission && !can(permission)) return <Navigate to="/app" replace />;

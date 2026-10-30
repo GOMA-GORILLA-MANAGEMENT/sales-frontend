@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { X, Loader2, ChevronDown, Check } from "lucide-react";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/react";
 import { cn } from "../../lib/utils";
@@ -7,12 +7,12 @@ import { cn } from "../../lib/utils";
    white cards, 10px corners, orange (#FF6F00) as the one accent colour. */
 
 export const PageHeader = ({ title, subtitle, actions }) => (
-  <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
-    <div>
-      <h1 className="text-[20px] font-bold text-gray-900">{title}</h1>
+  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3 mb-5 sm:mb-6">
+    <div className="min-w-0">
+      <h1 className="text-[18px] sm:text-[20px] font-bold text-gray-900">{title}</h1>
       {subtitle && <p className="text-[#A2A1A8] text-sm mt-1">{subtitle}</p>}
     </div>
-    {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    {actions && <div className="flex flex-wrap items-center gap-2 [&>button]:flex-1 sm:[&>button]:flex-none [&>a]:flex-1 sm:[&>a]:flex-none">{actions}</div>}
   </div>
 );
 
@@ -53,7 +53,7 @@ export const Button = ({ variant = "primary", size = "md", loading, className, c
 );
 
 const inputBase =
-  "w-full px-3 py-2.5 border border-gray-300 rounded-[10px] text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF6F00] focus:border-transparent disabled:bg-gray-50";
+  "w-full px-3 py-2.5 border border-gray-300 rounded-[10px] text-base sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF6F00] focus:border-transparent disabled:bg-gray-50";
 
 export const Field = ({ label, hint, error, children, className }) => (
   <label className={cn("block", className)}>
@@ -248,32 +248,64 @@ export const Modal = ({ open, title, onClose, children, footer, wide }) => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div
         role="dialog"
         aria-modal="true"
-        className={cn("relative bg-white rounded-[14px] shadow-xl w-full max-h-[90vh] flex flex-col", wide ? "max-w-3xl" : "max-w-lg")}
+        className={cn(
+          "relative bg-white shadow-xl w-full max-h-[92dvh] sm:max-h-[90dvh] flex flex-col rounded-t-[18px] sm:rounded-[14px]",
+          wide ? "sm:max-w-3xl" : "sm:max-w-lg"
+        )}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <button onClick={onClose} className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100" aria-label="Close">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{title}</h3>
+          <button onClick={onClose} className="p-2 rounded-full text-gray-500 hover:bg-gray-100 flex-shrink-0" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="px-6 py-5 overflow-y-auto space-y-4">{children}</div>
-        {footer && <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-2">{footer}</div>}
+        <div className="px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto overscroll-contain space-y-4">{children}</div>
+        {footer && (
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] [&>button]:w-full sm:[&>button]:w-auto">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export const Table = ({ headers, children, className }) => (
-  <div className={cn("overflow-x-auto rounded-[10px] border border-gray-200 bg-white", className)}>
+/**
+ * On a phone a table turns into a stack of cards. Each cell gets its column heading as a small label
+ * (see .stack-table in index.css), so nothing has to scroll sideways.
+ */
+export function useStackLabels(ref, headers) {
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const names = headers.map((h) => (typeof h === "object" ? h.text : h));
+    root.querySelectorAll("tbody tr, tfoot tr").forEach((row) => {
+      Array.from(row.children).forEach((cell, i) => {
+        cell.setAttribute("data-label", cell.hasAttribute("colspan") ? "" : names[i] || "");
+      });
+    });
+  });
+}
+
+export const Table = ({ headers, children, className }) => {
+  const ref = useRef(null);
+  useStackLabels(ref, headers);
+  return (
+  <div ref={ref} className={cn("stack-table overflow-x-auto rounded-[10px] border border-gray-200 bg-white", className)}>
     <table className="min-w-full text-sm">
       <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
         <tr>
@@ -287,16 +319,17 @@ export const Table = ({ headers, children, className }) => (
       <tbody className="divide-y divide-gray-100">{children}</tbody>
     </table>
   </div>
-);
+  );
+};
 
 export const Tabs = ({ tabs, value, onChange }) => (
-  <div className="flex flex-wrap gap-1 border-b border-gray-200 mb-5">
+  <div className="flex gap-1 border-b border-gray-200 mb-5 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     {tabs.map((t) => (
       <button
         key={t.value}
         onClick={() => onChange(t.value)}
         className={cn(
-          "px-4 py-2.5 text-sm -mb-px border-b-2 transition-colors",
+          "px-3 sm:px-4 py-3 sm:py-2.5 text-sm -mb-px border-b-2 transition-colors flex-shrink-0",
           value === t.value ? "border-[#FF6F00] text-[#FF6F00] font-medium" : "border-transparent text-gray-600 hover:text-gray-900"
         )}
       >

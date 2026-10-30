@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Minus, Plus, Search, Trash2 } from "lucide-react";
 import { api } from "../lib/http";
@@ -20,6 +20,7 @@ const TakeOrder = () => {
   const [category, setCategory] = useState("All");
   const [cart, setCart] = useState([]);
   const [busy, setBusy] = useState(false);
+  const cartRef = useRef(null);
 
   const { data, error, loading, reload } = useLoad(async () => {
     const [menu, customers] = await Promise.all([
@@ -92,6 +93,9 @@ const TakeOrder = () => {
     }
   };
 
+  const cartCount = cart.reduce((n, l) => n + l.quantity, 0);
+  const showCart = () => document.getElementById("current-order")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   if (loading) return <Spinner />;
   if (error) return <ErrorNote error={error} onRetry={reload} />;
   if (outlets.length === 0) return <Empty title="You are not assigned to an outlet yet" hint="Ask the owner or a manager to assign you." />;
@@ -156,7 +160,7 @@ const TakeOrder = () => {
           )}
         </div>
 
-        <Card className="xl:sticky xl:top-0 space-y-4">
+        <Card id="current-order" className="xl:sticky xl:top-0 space-y-4 scroll-mt-4">
           <h2 className="font-semibold text-gray-900">Current order</h2>
           {outlets.length > 1 && (
             <Field label="Outlet">
@@ -214,6 +218,17 @@ const TakeOrder = () => {
           </Button>
         </Card>
       </div>
+      {cartCount > 0 && (
+        <>
+          <div className="h-20 xl:hidden" />
+          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] xl:hidden">
+            <button onClick={showCart} className="flex w-full items-center justify-between rounded-[12px] bg-[#FF6F00] px-4 py-3 text-white font-medium">
+              <span>{cartCount} item{cartCount > 1 ? "s" : ""} · review order</span>
+              <span>{money(total)}</span>
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
