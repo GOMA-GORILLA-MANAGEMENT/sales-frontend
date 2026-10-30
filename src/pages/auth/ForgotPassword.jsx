@@ -64,46 +64,14 @@ const ForgotPassword = () => {
         toast.success("If this email has an account, a reset link is on its way.");
         navigate("/auth/login");
       } else {
-        let errorMessage = "Failed to initiate password reset";
+        let message = "Could not send the reset link. Please try again.";
         try {
-          const errText = await response.text();
-          console.log("Error response body:", errText);
-          console.log("Error response status:", response.status);
-
-          try {
-            const errJson = JSON.parse(errText);
-            errorMessage =
-              errJson.message ||
-              errJson.error ||
-              errJson.details ||
-              errorMessage;
-            console.log("Parsed error:", errJson);
-          } catch {
-            // if plain text error
-            errorMessage = errText || errorMessage;
-          }
-        } catch (parseError) {
-          console.log("Failed to parse error response:", parseError);
+          const data = await response.json();
+          message = data.message || message;
+        } catch {
+          /* no readable body */
         }
-
-        // Show more specific error message
-        if (
-          response.status === 400 &&
-          errText.includes("Mail server connection failed")
-        ) {
-          toast.error(
-            "Email service is temporarily unavailable. Please try again later or contact support."
-          );
-        } else if (
-          response.status === 400 &&
-          errText.includes("MailConnectException")
-        ) {
-          toast.error(
-            "Unable to send email at this time. Please contact support for password reset assistance."
-          );
-        } else {
-          toast.error(`${errorMessage} (Status: ${response.status})`);
-        }
+        toast.error(message);
       }
     } catch (error) {
       console.error("Network error details:", error);
