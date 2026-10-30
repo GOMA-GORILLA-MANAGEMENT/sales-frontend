@@ -1,0 +1,15 @@
+/* swiper-custom.css */
+.swiper-pagination-bullet {
+  background: #d1d5db; /* Default bullet color */
+  opacity: 1;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #ff6f00; /* Active bullet color (matching your theme) */
+  width: 24px; /* Make the active bullet wider */
+  border-radius: 4px; /* Make it a pill shape */
+  transition: all 0.3s ease; /* Smooth transition */
+}

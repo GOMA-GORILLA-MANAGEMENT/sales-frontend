@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /privacy-policy
+Allow: /terms-of-service
+Allow: /cookie-policy
+Allow: /auth/login
+
+# Keep private app areas out of Google
+Disallow: /app
+Disallow: /super-admin
+Disallow: /distributor
+Disallow: /sales-manager
+Disallow: /accountant
+Disallow: /store-manager
+Disallow: /wholesaler
+Disallow: /notifications
+Disallow: /profile
+Disallow: /auth/forgot-password
+Disallow: /auth/verify-otp
+Disallow: /auth/reset-password
+
+Sitemap: https://www.sales.rw/sitemap.xml

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary SEO -->
+  <title>Sales.rw — Beverage Sales & Distribution Management Platform</title>
+  <meta name="description" content="Sales.rw is a multi-tenant beverage supply chain platform for factories, distributors, wholesalers and retailers in Rwanda. Manage orders, inventory, pricing, invoices and sales teams in one place." />
+  <meta name="keywords" content="sales management Rwanda, beverage distribution, inventory management, distributor platform, sales.rw, stock management, GOMA" />
+  <meta name="author" content="GOMA Gorilla Management" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://www.sales.rw/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.sales.rw/" />
+  <meta property="og:title" content="Sales.rw — Beverage Sales & Distribution Management" />
+  <meta property="og:description" content="Manage factory-to-retailer beverage sales, inventory, orders and invoices across Rwanda on one platform." />
+  <meta property="og:image" content="https://www.sales.rw/logo.png" />
+  <meta property="og:image:alt" content="Sales.rw logo" />
+  <meta property="og:locale" content="en_RW" />
+  <meta property="og:site_name" content="Sales.rw" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sales.rw — Beverage Sales & Distribution Management" />
+  <meta name="twitter:description" content="Manage factory-to-retailer beverage sales, inventory, orders and invoices across Rwanda on one platform." />
+  <meta name="twitter:image" content="https://www.sales.rw/logo.png" />
+
+  <!-- Structured data for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Sales.rw",
+    "url": "https://www.sales.rw/",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Multi-tenant beverage sales and distribution management platform for Rwanda.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "RWF"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "GOMA Gorilla Management",
+      "url": "https://www.sales.rw/"
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="root">
+    <!-- Pre-React loading screen (visible until React mounts) -->
+    <div id="pre-loader" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#ffffff;z-index:99999;flex-direction:column;gap:6px;">
+      <style>
+        @keyframes preLoaderFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        @keyframes preLoaderPulse{0%,100%{opacity:.2;transform:translate(-50%,-50%) scale(1)}50%{opacity:.4;transform:translate(-50%,-50%) scale(1.15)}}
+        @keyframes preLoaderBar{0%{transform:translateX(-100%)}50%{transform:translateX(0)}100%{transform:translateX(100%)}}
+        #pre-loader-logo-wrap{position:relative;margin-bottom:12px;animation:preLoaderFloat 3s ease-in-out infinite}
+        #pre-loader-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,111,0,.15) 0%,transparent 70%);animation:preLoaderPulse 3s ease-in-out infinite;pointer-events:none}
+        #pre-loader img{width:72px;height:72px;border-radius:16px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 4px 20px rgba(255,111,0,.15))}
+        #pre-loader h1{font-family:'Zen Dots','Lexend',sans-serif;font-size:28px;font-weight:600;letter-spacing:6px;margin:0;background:linear-gradient(135deg,#1a1a1a 0%,#555 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        #pre-loader p.tagline{font-family:'Lexend',sans-serif;font-size:13px;font-weight:300;letter-spacing:3px;color:rgba(0,0,0,.35);margin:0 0 28px;text-transform:uppercase}
+        #pre-loader-track{width:200px;height:3px;border-radius:4px;background:rgba(0,0,0,.06);overflow:hidden;position:relative}
+        #pre-loader-bar{position:absolute;top:0;left:0;width:60%;height:100%;border-radius:4px;background:linear-gradient(90deg,transparent,#FF6F00,transparent);animation:preLoaderBar 1.8s ease-in-out infinite}
+        #pre-loader p.status{font-family:'Lexend',sans-serif;font-size:12px;font-weight:300;color:rgba(0,0,0,.35);margin-top:16px;letter-spacing:1px}
+      </style>
+      <div id="pre-loader-logo-wrap">
+        <div id="pre-loader-glow"></div>
+        <img src="/logo.png" alt="Sales.rw — beverage sales and distribution management platform" />
+      </div>
+      <h1>SALES</h1>
+      <p class="tagline">Management Platform</p>
+      <div id="pre-loader-track"><div id="pre-loader-bar"></div></div>
+      <p class="status">Preparing your workspace</p>
+    </div>
+  </div>
+  <div id="google_translate_element"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+    // Remove pre-loader once React mounts
+    const observer = new MutationObserver(() => {
+      const preLoader = document.getElementById('pre-loader');
+      const root = document.getElementById('root');
+      if (root && root.children.length > 1 && preLoader) {
+        preLoader.style.transition = 'opacity 0.4s ease-out';
+        preLoader.style.opacity = '0';
+        setTimeout(() => preLoader.remove(), 400);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+  </script>
+</body>
+
+</html>
