@@ -28,7 +28,7 @@ class ErrorBoundary extends Component {
               <p className="text-sm text-red-700">
                 Something went wrong. Please try again later.
               </p>
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <details className="mt-2 text-sm text-red-700">
                   <summary>Error details</summary>
                   <pre className="mt-1 p-2 bg-white rounded overflow-auto">

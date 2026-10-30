@@ -28,7 +28,6 @@ dist-ssr
 
 # Editor directories and files
 
-.vscode/*
 
 !.vscode/extensions.json
 
@@ -69,8 +68,6 @@ dist-ssr
 config.bat
 
 # Secrets and local files: never commit
-.env
-.env.*
 !.env.example
 *.log
 *.tar.gz
