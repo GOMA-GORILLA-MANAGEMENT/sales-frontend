@@ -5,3 +5,33 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Use the visible screen height on phones, where the browser bars come and go */
+html, body, #root { min-height: 100%; }
+body { -webkit-text-size-adjust: 100%; overflow-wrap: anywhere; }
+
+/* Tables become stacks of cards on small screens; labels come from useStackLabels in the UI kit */
+@media (max-width: 639px) {
+  .stack-table { overflow-x: visible; border: 0 !important; background: transparent !important; }
+  .stack-table table, .stack-table tbody, .stack-table tr, .stack-table td { display: block; width: 100%; }
+  .stack-table thead { display: none; }
+  .stack-table tbody { display: grid; gap: 0.75rem; }
+  .stack-table tfoot, .stack-table tfoot tr { display: block; margin-top: 0.75rem; }
+  .stack-table tfoot tr { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 0.5rem 0; }
+  .stack-table tbody > tr {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 0.5rem 0; box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+  }
+  .stack-table td {
+    display: grid; grid-template-columns: minmax(4.5rem, 38%) minmax(0, 1fr); column-gap: 1rem; align-items: baseline;
+    padding: 0.4rem 1rem !important; text-align: right !important; white-space: normal !important;
+  }
+  .stack-table td > * { grid-column: 2; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+  .stack-table td::before {
+    content: attr(data-label); grid-column: 1; grid-row: 1 / span 6; text-align: left; color: #A2A1A8;
+    font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .stack-table td[data-label=""]::before { content: none; }
+  .stack-table td[data-label=""] { grid-template-columns: 1fr; }
+  .stack-table td[data-label=""] > * { grid-column: 1; }
+  .stack-table td:empty { display: none; }
+}

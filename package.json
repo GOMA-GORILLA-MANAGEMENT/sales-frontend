@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec \"vite --host\"",
-    "dev:vite": "vite --host",
-    "build": "vite build",
+    "dev": "node init && nodemon --exec \"vite --host\"",
+    "dev:vite": "node init && vite --host",
+    "build": "node init && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

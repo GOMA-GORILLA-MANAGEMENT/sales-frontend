@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { FileDown, FileSpreadsheet } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -6,7 +6,7 @@ import { api } from "../lib/http";
 import { toast } from "../utils/toast";
 import { number, daysAgo, today } from "../lib/format";
 import { useAuth } from "../context/AuthContext";
-import { PageHeader, Card, Button, Select, Input, Spinner, ErrorNote, Empty, useLoad } from "../components/ui/kit";
+import { PageHeader, Card, Button, Select, Input, Spinner, ErrorNote, Empty, useLoad, useStackLabels } from "../components/ui/kit";
 import OutletFilter from "./OutletFilter";
 
 const REPORTS = [
@@ -33,6 +33,8 @@ const Reports = () => {
   const params = { from, to, outletId };
   const { data, error, loading, reload } = useLoad(() => api.get(`/api/reports/${type}`, params), [type, from, to, outletId]);
   const current = REPORTS.find((r) => r.value === type);
+  const tableRef = useRef(null);
+  useStackLabels(tableRef, data ? data.headers : []);
   const usesPeriod = !["stock", "debts", "aging"].includes(type);
 
   const excel = async () => {
@@ -86,7 +88,7 @@ const Reports = () => {
         <Card className="!p-0 overflow-hidden">
           <div className="px-5 py-3 border-b border-gray-100 font-medium text-gray-900">{data.title}</div>
           {data.rows.length === 0 ? <Empty title="Nothing to show for this choice" /> : (
-            <div className="overflow-x-auto">
+            <div ref={tableRef} className="stack-table overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
                   <tr>{data.headers.map((h) => <th key={h} className="px-4 py-3 font-medium whitespace-nowrap">{h}</th>)}</tr>
