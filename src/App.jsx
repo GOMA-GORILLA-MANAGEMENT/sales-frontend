@@ -42,8 +42,8 @@ import Settings from "./business/Settings";
 import Profile from "./business/Profile";
 
 /** A signed-in screen inside the app shell, optionally limited to a permission. */
-const Screen = ({ permission, platform, any, children }) => (
-  <ProtectedRoute permission={permission} platform={platform} any={any}>
+const Screen = ({ permission, platform, any, anyone, children }) => (
+  <ProtectedRoute permission={permission} platform={platform} any={any} anyone={anyone}>
     <AppLayout>
       <ErrorBoundary>{children}</ErrorBoundary>
     </AppLayout>
@@ -111,7 +111,7 @@ function App() {
             <Route path="/team" element={<Screen permission="staff:manage"><Team /></Screen>} />
             <Route path="/audit" element={<Screen permission="audit:view"><Audit /></Screen>} />
             <Route path="/settings" element={<Screen permission="settings:manage"><Settings /></Screen>} />
-            <Route path="/profile" element={<Screen><Profile /></Screen>} />
+            <Route path="/profile" element={<Screen anyone><Profile /></Screen>} />
 
             <Route path="/home" element={<Navigate to="/app" replace />} />
             <Route path="*" element={<NotFound />} />
